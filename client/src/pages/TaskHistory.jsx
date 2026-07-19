@@ -61,65 +61,93 @@ const TaskHistory = () => {
         </p>
       </div>
 
-      {/* Grid of Completed Tasks */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {tasks.length === 0 ? (
-          <div className="col-span-full bg-slate-900/20 backdrop-blur-md p-12 text-center rounded-2xl border border-slate-900 text-slate-500">
-            No completed operations logged in the history ledger.
-          </div>
-        ) : (
-          tasks.map((task) => (
-            <div 
-              key={task._id} 
-              className="bg-slate-900/40 backdrop-blur-md p-6 rounded-2xl border border-slate-900/80 shadow-xl flex flex-col justify-between gap-4 border-l-4 border-l-emerald-500 glass-card-hover"
-            >
-              <div className="space-y-2">
-                <div className="flex justify-between items-start gap-4">
-                  <h3 className="font-bold text-white text-base leading-snug line-through opacity-60">{task.title}</h3>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                    <FiCheckCircle size={10} /> Completed
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{task.description || 'No detailed parameters supplied.'}</p>
-              </div>
-
-              <div className="pt-4 border-t border-slate-950/60 flex flex-col gap-3">
-                {/* Meta details */}
-                <div className="flex flex-wrap justify-between items-center gap-2 text-[11px] text-slate-500 font-mono">
-                  <span className="flex items-center gap-1">
-                    <FiClock /> Resolved: {dayjs(task.updatedAt).format('MMM DD, YYYY')}
-                  </span>
-                  <span>
-                    Est: {task.estimatedDuration}h / Act: <span className="text-emerald-400 font-semibold">{task.actualDuration}h</span>
-                  </span>
-                </div>
-
-                {isAdmin && task.assignedTo && task.assignedTo.length > 0 && (
-                  <div className="text-[10px] bg-slate-950/40 px-2.5 py-1.5 rounded-lg border border-slate-900/40 text-slate-400 truncate flex items-center gap-1.5">
-                    <FiUser className="text-slate-500" size={12} />
-                    <span className="font-semibold text-slate-500">Nodes: </span>
-                    {task.assignedTo.map(u => u.name).join(', ')}
-                  </div>
-                )}
-
-                {/* Status Switcher (allows reverting to Active if needed) */}
-                <div className="flex items-center justify-between mt-1">
-                  <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">Reopen Operation</span>
-                  <select 
-                    value={task.status} 
-                    onChange={(e) => updateTaskStatus(task._id, e.target.value)}
-                    className="text-xs font-semibold bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 focus:border-indigo-500 outline-none text-slate-400 cursor-pointer"
-                  >
-                    <option value="Completed">Completed</option>
-                    <option value="In Progress">Reopen to In Progress</option>
-                    <option value="Review">Reopen to Review</option>
-                    <option value="Not Started">Reopen to Not Started</option>
-                  </select>
-                </div>
-              </div>
+      {/* Table of Completed Tasks */}
+      <div className="bg-slate-900/40 backdrop-blur-xl rounded-3xl border border-slate-900 overflow-hidden shadow-2xl">
+        <div className="overflow-x-auto">
+          {tasks.length === 0 ? (
+            <div className="p-12 text-center rounded-2xl text-slate-500 font-mono text-xs">
+              No completed operations logged in the history ledger.
             </div>
-          ))
-        )}
+          ) : (
+            <table className="w-full text-left text-slate-300">
+              <thead>
+                <tr className="border-b border-slate-900 bg-slate-950/50 text-[10px] font-bold font-mono tracking-wider text-slate-500 uppercase">
+                  <th scope="col" className="px-8 py-5">Operation Title</th>
+                  <th scope="col" className="px-6 py-5">Description</th>
+                  <th scope="col" className="px-6 py-5">Resolved Date</th>
+                  <th scope="col" className="px-6 py-5 text-center">Est. Hrs</th>
+                  <th scope="col" className="px-6 py-5 text-center">Act. Hrs</th>
+                  {isAdmin && <th scope="col" className="px-6 py-5">Assigned Nodes</th>}
+                  <th scope="col" className="px-6 py-5 text-right pr-8">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-950/40 text-xs">
+                {tasks.map((task) => {
+                  return (
+                    <tr key={task._id} className="hover:bg-slate-900/10 transition">
+                      {/* Title */}
+                      <td className="px-8 py-5 font-bold text-slate-200 line-through opacity-50 font-mono max-w-xs truncate" title={task.title}>
+                        {task.title}
+                      </td>
+                      {/* Description */}
+                      <td className="px-6 py-5 text-slate-400 max-w-xs truncate" title={task.description}>
+                        {task.description || 'No detailed parameters supplied.'}
+                      </td>
+                      {/* Resolved Date */}
+                      <td className="px-6 py-5 text-slate-400 font-mono">
+                        {dayjs(task.updatedAt).format('MMM DD, YYYY')}
+                      </td>
+                      {/* Est. Hrs */}
+                      <td className="px-6 py-5 font-mono text-slate-400 text-center">
+                        {task.estimatedDuration}h
+                      </td>
+                      {/* Act. Hrs */}
+                      <td className="px-6 py-5 font-mono text-emerald-400 font-semibold text-center">
+                        {task.actualDuration}h
+                      </td>
+                      {/* Assigned Nodes */}
+                      {isAdmin && (
+                        <td className="px-6 py-5">
+                          <div className="flex flex-wrap gap-1.5 items-center">
+                            {task.assignedTo && task.assignedTo.length > 0 ? (
+                              task.assignedTo.map((u) => {
+                                const initial = u.name ? u.name.charAt(0).toUpperCase() : '?';
+                                return (
+                                  <div 
+                                    key={u._id} 
+                                    className="w-6 h-6 rounded-md bg-slate-950/60 border border-slate-900 flex items-center justify-center text-[10px] text-slate-300 font-mono"
+                                    title={`${u.name} (${u.email})`}
+                                  >
+                                    {initial}
+                                  </div>
+                                );
+                              })
+                            ) : (
+                              <span className="text-slate-600">-</span>
+                            )}
+                          </div>
+                        </td>
+                      )}
+                      {/* Reopen Action */}
+                      <td className="px-6 py-5 text-right pr-8">
+                        <select 
+                          value={task.status} 
+                          onChange={(e) => updateTaskStatus(task._id, e.target.value)}
+                          className="text-xs font-semibold bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 focus:border-indigo-500 outline-none text-slate-400 cursor-pointer"
+                        >
+                          <option value="Completed">Completed</option>
+                          <option value="In Progress">Reopen: In Progress</option>
+                          <option value="Review">Reopen: Review</option>
+                          <option value="Not Started">Reopen: Not Started</option>
+                        </select>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );
