@@ -58,9 +58,9 @@ const DashboardLayout = () => {
           </div>
           <div>
             <span className="font-extrabold text-sm tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-indigo-400 block leading-none mb-1">
-              SMART TASK
+              HASHTASK AI
             </span>
-            <span className="text-[9px] text-emerald-400 font-mono tracking-widest uppercase block leading-none">Global Control</span>
+            <span className="text-[9px] text-emerald-400 font-mono tracking-widest uppercase block leading-none">Task Operations</span>
           </div>
         </div>
         

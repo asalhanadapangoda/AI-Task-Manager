@@ -40,7 +40,7 @@ const Home = () => {
             </div>
             <div>
               <h1 className="font-extrabold text-base tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-indigo-400 m-0">
-                SMART TASK
+                HASHTASK AI
               </h1>
             </div>
           </div>
@@ -232,7 +232,7 @@ const Home = () => {
       <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-900 flex flex-col md:flex-row items-center justify-between text-slate-500 text-xs gap-4 relative z-10">
         <div className="flex items-center gap-2">
           <FiCompass size={16} />
-          <span>© {new Date().getFullYear()} Smart Task Management. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} HashTask AI Operations. All rights reserved.</span>
         </div>
         <div className="flex items-center gap-6 font-mono">
           <span>SECURE SHELL: ACTIVE</span>
