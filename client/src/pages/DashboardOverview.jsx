@@ -5,6 +5,37 @@ import api from '../utils/api';
 import { toast } from 'react-toastify';
 import ReactMarkdown from 'react-markdown';
 
+const parseAiSections = (text) => {
+  if (!text) return { plan: '', ledger: '', steps: '' };
+
+  const planIndex = text.indexOf('### 1. Daily Operational Plan');
+  const ledgerIndex = text.indexOf('### 2. Active Operations Ledger');
+  const stepsIndex = text.indexOf('### 3. AI Tactical Execution Steps');
+
+  let plan = '';
+  let ledger = '';
+  let steps = '';
+
+  if (planIndex !== -1) {
+    const end = ledgerIndex !== -1 ? ledgerIndex : text.length;
+    plan = text.substring(planIndex + '### 1. Daily Operational Plan'.length, end).trim();
+  }
+  if (ledgerIndex !== -1) {
+    const end = stepsIndex !== -1 ? stepsIndex : text.length;
+    ledger = text.substring(ledgerIndex + '### 2. Active Operations Ledger'.length, end).trim();
+  }
+  if (stepsIndex !== -1) {
+    steps = text.substring(stepsIndex + '### 3. AI Tactical Execution Steps'.length).trim();
+  }
+
+  // Fallback if formatting headings are completely different
+  if (!plan && !ledger && !steps) {
+    return { plan: text, ledger: '', steps: '' };
+  }
+
+  return { plan, ledger, steps };
+};
+
 const DashboardOverview = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [tasks, setTasks] = useState([]);
@@ -268,29 +299,72 @@ const DashboardOverview = () => {
           </div>
 
           {/* AI Completion Steps Panel */}
-          <div className="lg:col-span-2 bg-slate-900/40 backdrop-blur-xl border border-slate-900 p-8 rounded-3xl shadow-2xl space-y-6 relative">
-            <div className="flex justify-between items-center pb-4 border-b border-slate-950/60">
-              <div className="flex items-center gap-2">
-                <FiActivity className="text-emerald-400" />
-                <h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase font-mono">
-                  Today's Execution Guidance (AI)
-                </h2>
+          <div className="lg:col-span-2 space-y-6">
+            {!aiSummary ? (
+              <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-900 p-8 rounded-3xl shadow-2xl flex flex-col items-center justify-center gap-2 py-24 text-slate-500 font-mono text-xs">
+                <div className="w-8 h-8 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin mb-2"></div>
+                Assembling operational parameters...
               </div>
-              <span className="text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full font-mono uppercase font-semibold">
-                Live Analysis
-              </span>
-            </div>
+            ) : (() => {
+              const { plan, ledger, steps } = parseAiSections(aiSummary);
+              return (
+                <div className="space-y-6">
+                  {/* Ledger Section */}
+                  <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-900 p-6 rounded-2xl shadow-xl space-y-4">
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-950/60">
+                      <div className="flex items-center gap-2">
+                        <FiLayers className="text-indigo-400" />
+                        <h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase font-mono">
+                          1. Active Operations Ledger
+                        </h2>
+                      </div>
+                      <span className="text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full font-mono uppercase font-semibold">
+                        Load
+                      </span>
+                    </div>
+                    <div className="text-slate-300 text-sm leading-relaxed prose prose-invert prose-indigo max-w-none markdown-body-custom">
+                      <ReactMarkdown>{ledger || '*No active operations found.*'}</ReactMarkdown>
+                    </div>
+                  </div>
 
-            <div className="text-slate-300 text-sm leading-relaxed max-w-4xl prose prose-invert prose-indigo font-sans markdown-body-custom">
-              {aiSummary ? (
-                <ReactMarkdown>{aiSummary}</ReactMarkdown>
-              ) : (
-                <div className="flex flex-col items-center gap-2 py-12 text-slate-500 font-mono text-xs">
-                  <div className="w-8 h-8 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin mb-2"></div>
-                  Assembling personalized task guide...
+                  {/* Plan Section */}
+                  <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-900 p-6 rounded-2xl shadow-xl space-y-4">
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-950/60">
+                      <div className="flex items-center gap-2">
+                        <FiClock className="text-amber-400" />
+                        <h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase font-mono">
+                          2. Daily Operational Plan
+                        </h2>
+                      </div>
+                      <span className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-mono uppercase font-semibold">
+                        Schedules
+                      </span>
+                    </div>
+                    <div className="text-slate-300 text-sm leading-relaxed prose prose-invert prose-indigo max-w-none markdown-body-custom">
+                      <ReactMarkdown>{plan || '*No plan compiled.*'}</ReactMarkdown>
+                    </div>
+                  </div>
+
+                  {/* Steps Section */}
+                  <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-900 p-6 rounded-2xl shadow-xl space-y-4">
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-950/60">
+                      <div className="flex items-center gap-2">
+                        <FiActivity className="text-emerald-400" />
+                        <h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase font-mono">
+                          3. AI Tactical Execution Steps
+                        </h2>
+                      </div>
+                      <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono uppercase font-semibold">
+                        Guides
+                      </span>
+                    </div>
+                    <div className="text-slate-300 text-sm leading-relaxed prose prose-invert prose-indigo max-w-none markdown-body-custom">
+                      <ReactMarkdown>{steps || '*No execution steps required.*'}</ReactMarkdown>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
+              );
+            })()}
           </div>
         </div>
       )}

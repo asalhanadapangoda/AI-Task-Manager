@@ -21,21 +21,32 @@ const generateProductivitySummary = async (stats) => {
       `;
     } else {
       prompt = `
-        You are an encouraging AI Coach and Mentor for a team member. Analyze their personal task statistics and active task details.
+        You are an AI Operational Coach for a team member. Analyze their personal task statistics and active task details.
         
         Stats: ${JSON.stringify(stats)}
         
-        Please output EXACTLY:
-        1. A friendly, high-energy Personal Task Outlook.
-        2. Today's Active Tasks list. For each active task, show:
-           - **Task Name** (Priority: [Priority])
-             *Description*: [Write a brief 1-sentence summary of the task]
-             *AI Recommended Steps for Completion*:
-             1. [Step 1]
-             2. [Step 2]
-             3. [Step 3]
+        Format your response EXACTLY as a markdown document with the following three distinct sections. Deliver bullet points and list elements with ZERO indentation (no leading spaces on list lines) to ensure proper rendering. Keep it brief, point-wise, and extremely easy to read quickly.
         
-        Do NOT output any motivation quotes, boosts, or slogans in this markdown summary. Do NOT mention Google, Gemini, or any LLM model name. Speak as a native, secure internal system assistant.
+        Use the following markdown structure:
+        
+        ### 1. Daily Operational Plan
+        - [ ] **Block 1**: [Describe block focus, e.g. Focus on "Task Name" (Priority)]
+        - [ ] **Block 2**: [Describe block focus, e.g. Focus on "Task Name" (Priority)]
+        
+        ### 2. Active Operations Ledger
+        * **Task**: [Task Name]
+        * **Priority**: [Priority]
+        * **Deadline**: [Deadline Date]
+        * **Description**: [Brief 1-sentence description]
+        ---
+        
+        ### 3. AI Tactical Execution Steps
+        **Tactical Steps for "[Task Name]":**
+        - [ ] **Step 1**: [Instruction step 1]
+        - [ ] **Step 2**: [Instruction step 2]
+        - [ ] **Step 3**: [Instruction step 3]
+        
+        Do NOT mention Google, Gemini, or any LLM model name. Speak as a secure internal system assistant.
       `;
     }
 
@@ -54,23 +65,48 @@ const generateProductivitySummary = async (stats) => {
 - **Suggestion**: Consider review of node workloads and allocate support to pending dispatch items.
       `;
     } else {
-      let tasksListMarkdown = '';
+      let dailyPlanMarkdown = '';
+      let operationsLedgerMarkdown = '';
+      let executionStepsMarkdown = '';
+
       if (stats.activeTasksList && stats.activeTasksList.length > 0) {
-        tasksListMarkdown = '\n### Today\'s Active Operations:\n' + stats.activeTasksList.map((t, idx) => `
-**${idx + 1}. ${t.title}** (Priority: ${t.priority})
-* *Description*: ${t.description || 'No detailed parameters supplied.'}
-* *AI Recommended Steps for Completion*:
-  1. Review operation scope and confirm required resources are ready.
-  2. Execute execution parameters and perform validation test logs.
-  3. Submit completed node logs to Supervisor for final review and close task.
-`).join('\n');
+        // Daily Plan
+        dailyPlanMarkdown = stats.activeTasksList.map((t, idx) => 
+`- [ ] **Block ${idx + 1}**: Focus on task **"${t.title}"** (Priority: ${t.priority}).
+- [ ] **Check-in**: Perform intermediate milestones and check execution bounds.`
+        ).join('\n');
+
+        // Operations Ledger
+        operationsLedgerMarkdown = stats.activeTasksList.map((t) => 
+`* **Task**: ${t.title}
+* **Priority**: ${t.priority}
+* **Deadline**: ${t.deadline ? new Date(t.deadline).toLocaleDateString() : 'Immediate'}
+* **Description**: ${t.description || 'No detailed parameters supplied.'}`
+        ).join('\n---\n');
+
+        // Execution Steps
+        executionStepsMarkdown = stats.activeTasksList.map((t) => 
+`**Tactical Steps for "${t.title}":**
+- [ ] **Step 1**: Review task scope and verify prerequisites.
+- [ ] **Step 2**: Execute target action items and record logs.
+- [ ] **Step 3**: Validate output metrics and submit for review.`
+        ).join('\n\n');
+
       } else {
-        tasksListMarkdown = '\n*All tasks completed! Node operational threshold clear.*';
+        dailyPlanMarkdown = '\n*All tasks completed! Node operational threshold clear.*';
+        operationsLedgerMarkdown = '\n*No active operations found.*';
+        executionStepsMarkdown = '\n*No execution steps required.*';
       }
 
       return `
-- **Personal Task Outlook**: You have **${stats.pendingTasks}** pending tasks remaining out of **${stats.totalTasks}** assigned.
-${tasksListMarkdown}
+### 1. Daily Operational Plan
+${dailyPlanMarkdown}
+
+### 2. Active Operations Ledger
+${operationsLedgerMarkdown}
+
+### 3. AI Tactical Execution Steps
+${executionStepsMarkdown}
       `;
     }
   }
