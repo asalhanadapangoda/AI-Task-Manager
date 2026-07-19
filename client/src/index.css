@@ -8,7 +8,7 @@
 :root {
   --text: #6b6375;
   --text-h: #08060d;
-  --bg: #fff;
+  --bg: #020617;
   --border: oklch(0.922 0 0);
   --code-bg: #f4f3ec;
   --accent: oklch(0.97 0 0);
@@ -101,7 +101,7 @@
   :root {
     --text: #9ca3af;
     --text-h: #f3f4f6;
-    --bg: #16171d;
+    --bg: #020617;
     --border: #2e303a;
     --code-bg: #1f2028;
     --accent: #c084fc;
@@ -117,8 +117,11 @@
   }
 }
 
+html,
 body {
   margin: 0;
+  padding: 0;
+  background-color: #020617 !important;
 }
 
 #root {

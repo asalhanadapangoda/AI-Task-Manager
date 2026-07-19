@@ -3,6 +3,48 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 // Initialize the API with the key from environment
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+const generateTaskSpecificSteps = (task) => {
+  const title = task.title || 'Operation';
+  const desc = task.description ? task.description.trim() : '';
+  const textCombo = `${title} ${desc}`.toLowerCase();
+
+  let step1Desc = desc ? `Review specifications ("${desc}") and set up workspace assets for **"${title}"**.` : `Review operational scope and set up workspace assets for **"${title}"**.`;
+  let step2Desc = `Execute core implementation phase targeting **"${title}"** according to assigned parameters.`;
+  let step3Desc = `Run validation tests for **"${title}"**, verify functional results, and mark task Completed.`;
+
+  if (textCombo.includes('video') || textCombo.includes('reel') || textCombo.includes('media') || textCombo.includes('edit')) {
+    step1Desc = desc ? `Review video concept ("${desc}") and gather raw footage/graphics for **"${title}"**.` : `Draft outline storyboard and gather raw media footage for **"${title}"**.`;
+    step2Desc = `Assemble video timeline, add transitions, overlays, background audio, and color grading.`;
+    step3Desc = `Render high-resolution export for **"${title}"**, conduct quality check, and publish output.`;
+  } else if (textCombo.includes('email') || textCombo.includes('smtp') || textCombo.includes('mail') || textCombo.includes('notification')) {
+    step1Desc = desc ? `Configure API transport & credentials ("${desc}") in server environment.` : `Configure API transport credentials (Resend/SMTP) in server environment.`;
+    step2Desc = `Build responsive HTML email templates with dynamic variable bindings.`;
+    step3Desc = `Dispatch test payloads for **"${title}"**, verify inbox deliverability, and check webhook logs.`;
+  } else if (textCombo.includes('database') || textCombo.includes('mongo') || textCombo.includes('schema') || textCombo.includes('model') || textCombo.includes('sql')) {
+    step1Desc = desc ? `Analyze database parameters ("${desc}") and define Mongoose schema constraints.` : `Define Mongoose schema models, data validation constraints, and database indexes.`;
+    step2Desc = `Construct query controllers and CRUD access handlers for **"${title}"**.`;
+    step3Desc = `Run test seed scripts, check query performance, and verify schema integrity.`;
+  } else if (textCombo.includes('auth') || textCombo.includes('login') || textCombo.includes('jwt') || textCombo.includes('password') || textCombo.includes('user')) {
+    step1Desc = desc ? `Review security requirements ("${desc}") and setup bcrypt hashing / JWT secrets.` : `Setup password hashing (bcrypt) and token-based JWT authentication middleware.`;
+    step2Desc = `Build authentication routes, client state providers, and session guards.`;
+    step3Desc = `Verify token expiration lifecycle, test login/logout flows, and confirm audit security.`;
+  } else if (textCombo.includes('ui') || textCombo.includes('component') || textCombo.includes('page') || textCombo.includes('react') || textCombo.includes('design') || textCombo.includes('style')) {
+    step1Desc = desc ? `Design UI component layout for **"${title}"** based on parameters: "${desc}".` : `Construct responsive UI component layouts using Tailwind CSS design tokens.`;
+    step2Desc = `Connect React state management hooks and bind backend API endpoints.`;
+    step3Desc = `Perform cross-browser visual review, verify responsiveness, and test user interactions.`;
+  } else if (textCombo.includes('api') || textCombo.includes('route') || textCombo.includes('backend') || textCombo.includes('server') || textCombo.includes('controller')) {
+    step1Desc = desc ? `Review API specification ("${desc}") and define RESTful route signatures.` : `Design RESTful endpoint signatures, request payload validators, and route handlers.`;
+    step2Desc = `Implement business logic in controller modules for **"${title}"** with error handling.`;
+    step3Desc = `Execute HTTP request tests, verify payload responses, and confirm status code handling.`;
+  } else if (textCombo.includes('bug') || textCombo.includes('fix') || textCombo.includes('debug') || textCombo.includes('refactor') || textCombo.includes('issue')) {
+    step1Desc = desc ? `Investigate reported issue ("${desc}"), inspect logs, and isolate source files.` : `Reproduce reported issue, inspect stack traces, and isolate target codebase files.`;
+    step2Desc = `Apply targeted code fix or refactoring for **"${title}"** while maintaining stability.`;
+    step3Desc = `Run test suite, verify fix resolution, and confirm no regression errors occur.`;
+  }
+
+  return [step1Desc, step2Desc, step3Desc];
+};
+
 const generateProductivitySummary = async (stats) => {
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
@@ -41,10 +83,12 @@ const generateProductivitySummary = async (stats) => {
         ---
         
         ### 3. AI Tactical Execution Steps
+        For EACH active task, provide 3 highly specific, technical, domain-tailored tactical execution steps based on the task title and description. Do NOT output generic placeholders.
+        Format like:
         **Tactical Steps for "[Task Name]":**
-        - [ ] **Step 1**: [Instruction step 1]
-        - [ ] **Step 2**: [Instruction step 2]
-        - [ ] **Step 3**: [Instruction step 3]
+        - [ ] **Step 1**: [Specific instruction step 1 tailored to task title/description]
+        - [ ] **Step 2**: [Specific instruction step 2 tailored to task title/description]
+        - [ ] **Step 3**: [Specific instruction step 3 tailored to task title/description]
         
         Do NOT mention Google, Gemini, or any LLM model name. Speak as a secure internal system assistant.
       `;
@@ -85,12 +129,13 @@ const generateProductivitySummary = async (stats) => {
         ).join('\n---\n');
 
         // Execution Steps
-        executionStepsMarkdown = stats.activeTasksList.map((t) => 
-`**Tactical Steps for "${t.title}":**
-- [ ] **Step 1**: Review task scope and verify prerequisites.
-- [ ] **Step 2**: Execute target action items and record logs.
-- [ ] **Step 3**: Validate output metrics and submit for review.`
-        ).join('\n\n');
+        executionStepsMarkdown = stats.activeTasksList.map((t) => {
+          const steps = generateTaskSpecificSteps(t);
+          return `**Tactical Steps for "${t.title}":**
+- [ ] **Step 1**: ${steps[0]}
+- [ ] **Step 2**: ${steps[1]}
+- [ ] **Step 3**: ${steps[2]}`;
+        }).join('\n\n');
 
       } else {
         dailyPlanMarkdown = '\n*All tasks completed! Node operational threshold clear.*';
