@@ -8,6 +8,7 @@ const TeamManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [createdUserData, setCreatedUserData] = useState(null);
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -30,7 +31,7 @@ const TeamManagement = () => {
   const onSubmit = async (data) => {
     try {
       await api.post('/auth/create', data);
-      toast.success('Member deployed successfully. Welcoming message sent!');
+      setCreatedUserData(data); // Save credentials so the admin can manually copy them
       setShowAddModal(false);
       reset();
       fetchUsers();
@@ -183,6 +184,45 @@ const TeamManagement = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {createdUserData && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center z-50">
+          <div className="bg-slate-900 border border-emerald-500/20 p-8 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-full max-w-md animate-in zoom-in-95 duration-200">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center text-3xl mx-auto border border-emerald-500/20">
+                ✓
+              </div>
+              <h2 className="text-xl font-extrabold text-white">Node Deployed Successfully!</h2>
+              <p className="text-xs text-slate-400">
+                Onboarding email dispatch completed. However, since sandbox accounts restrict automated delivery, please manually copy these credentials for the user:
+              </p>
+            </div>
+            
+            <div className="mt-6 bg-slate-950/80 p-4 rounded-xl border border-slate-900 space-y-3 font-mono text-xs text-left">
+              <div>
+                <span className="text-slate-500">Name:</span> <span className="text-slate-200">{createdUserData.name}</span>
+              </div>
+              <div>
+                <span className="text-slate-500">Email:</span> <span className="text-slate-200">{createdUserData.email}</span>
+              </div>
+              <div>
+                <span className="text-slate-500">Password:</span> <span className="text-emerald-400 font-semibold">{createdUserData.password}</span>
+              </div>
+              <div>
+                <span className="text-slate-500">Role:</span> <span className="text-indigo-400 capitalize">{createdUserData.role || 'member'}</span>
+              </div>
+            </div>
+
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={() => setCreatedUserData(null)}
+                className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition text-sm shadow-lg shadow-emerald-950/40"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}

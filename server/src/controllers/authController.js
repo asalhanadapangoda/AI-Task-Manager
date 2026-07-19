@@ -52,13 +52,13 @@ const createUser = async (req, res) => {
     });
 
     if (user) {
-      // Send Welcome Email
+      const origin = req.headers.origin || 'http://localhost:5173';
       const emailHtml = `
         <h3>Welcome to Smart Task Management System</h3>
         <p>Your account has been created.</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Password:</strong> ${password}</p>
-        <p><a href="http://localhost:5173/login">Login Here</a></p>
+        <p><a href="${origin}/login">Login Here</a></p>
       `;
       
       sendEmail({
