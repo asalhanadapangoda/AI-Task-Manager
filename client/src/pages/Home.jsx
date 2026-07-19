@@ -5,13 +5,17 @@ import api from '../utils/api';
 
 const Home = () => {
   const [schedule, setSchedule] = useState([]);
+  const [metrics, setMetrics] = useState({ activeTasks: 0, resolutionRate: '100%', synthesis: 'All system nodes running within normal load parameters.' });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
         const response = await api.get('/tasks/public-schedule');
-        setSchedule(response.data);
+        setSchedule(response.data.schedule || []);
+        if (response.data.metrics) {
+          setMetrics(response.data.metrics);
+        }
       } catch (error) {
         console.error('Failed to load active system node schedule:', error);
       } finally {
@@ -38,7 +42,6 @@ const Home = () => {
               <h1 className="font-extrabold text-base tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-indigo-400 m-0">
                 SMART TASK
               </h1>
-              <span className="text-[9px] text-emerald-400 font-mono tracking-widest uppercase block mt-0.5">Control Grid</span>
             </div>
           </div>
 
@@ -71,7 +74,7 @@ const Home = () => {
             </span>
           </h2>
           <p className="text-slate-400 text-base md:text-lg leading-relaxed max-w-xl">
-            A premium task management platform built for modern operations. Instantly log workflows, allocate across nodes, and generate intelligence briefs via the Gemini engine.
+            A premium task management platform built for modern operations. Instantly log workflows, allocate across nodes, and generate intelligence briefs via the core intelligence engine.
           </p>
           <div className="flex flex-wrap gap-4">
             <Link 
@@ -105,11 +108,15 @@ const Home = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-slate-950/60 border border-slate-900/60 p-4 rounded-2xl">
                 <span className="text-[10px] font-mono text-slate-500 uppercase">System Tasks</span>
-                <p className="text-2xl font-extrabold text-white mt-1">148 Active</p>
+                <p className="text-2xl font-extrabold text-white mt-1">
+                  {loading ? '...' : `${metrics.activeTasks} Active`}
+                </p>
               </div>
               <div className="bg-slate-950/60 border border-slate-900/60 p-4 rounded-2xl">
                 <span className="text-[10px] font-mono text-slate-500 uppercase">Node Resolution</span>
-                <p className="text-2xl font-extrabold text-emerald-400 mt-1">94.2%</p>
+                <p className="text-2xl font-extrabold text-emerald-400 mt-1">
+                  {loading ? '...' : metrics.resolutionRate}
+                </p>
               </div>
             </div>
 
@@ -117,10 +124,10 @@ const Home = () => {
             <div className="bg-indigo-950/20 border border-indigo-500/20 p-4 rounded-2xl space-y-2.5">
               <div className="flex items-center gap-2">
                 <FiCpu size={14} className="text-indigo-400" />
-                <span className="text-[10px] font-bold font-mono text-indigo-400 uppercase">Gemini Ops Synthesis</span>
+                <span className="text-[10px] font-bold font-mono text-indigo-400 uppercase">AI Ops Synthesis</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed font-mono">
-                "Warning: 3 pending deployments scheduled for Friday. Allocate additional support to Node: Kavin to balance load thresholds."
+                "{loading ? 'Synthesizing operational parameters...' : metrics.synthesis}"
               </p>
             </div>
           </div>
@@ -136,7 +143,10 @@ const Home = () => {
             <span>LIVE GRID SIMULATION</span>
           </div>
           <h2 className="text-3xl font-extrabold text-white tracking-tight">Active Node Schedule</h2>
-          <p className="text-slate-400 text-sm max-w-xl mx-auto leading-relaxed">
+          <p 
+            className="text-slate-400 text-sm max-w-xl mx-auto leading-relaxed text-center"
+            style={{ textAlign: 'center', margin: '0 auto', maxWidth: '36rem', display: 'block' }}
+          >
             Monitor week-to-week workloads and calendar details compiled live from active system nodes.
           </p>
         </div>

@@ -265,7 +265,9 @@ const MyTasks = () => {
                     className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 text-white rounded-xl focus:border-indigo-500 outline-none transition text-sm cursor-pointer"
                   >
                     <option value="">Select Member...</option>
-                    <option value={userInfo._id || userInfo.id}>Myself ({userInfo.name || 'Admin'})</option>
+                    {userInfo.email !== 'admin@example.com' && (
+                      <option value={userInfo._id || userInfo.id}>Myself ({userInfo.name || 'Admin'})</option>
+                    )}
                     {users.filter(u => u._id !== (userInfo._id || userInfo.id)).map(u => (
                       <option key={u._id} value={u._id}>{u.name} ({u.email})</option>
                     ))}

@@ -142,8 +142,26 @@ const deleteTask = async (req, res) => {
 
 const getPublicSchedule = async (req, res) => {
   try {
-    const users = await User.find({}, 'name');
+    const users = await User.find({ email: { $ne: 'admin@example.com' } }, 'name');
     const tasks = await Task.find({ status: { $ne: 'Completed' } }).populate('assignedTo', 'name');
+
+    const totalTasks = await Task.countDocuments({});
+    const completedTasks = await Task.countDocuments({ status: 'Completed' });
+    const activeTasks = await Task.countDocuments({ status: { $ne: 'Completed' } });
+
+    // Resolution rate calculation
+    const resolutionRate = totalTasks > 0 
+      ? ((completedTasks / totalTasks) * 100).toFixed(1) + '%' 
+      : '100%';
+
+    // Generate dynamic synthesis
+    let synthesis = 'All system nodes running within normal load parameters.';
+    const highPriorityCount = await Task.countDocuments({ priority: 'High', status: { $ne: 'Completed' } });
+    if (highPriorityCount > 0) {
+      synthesis = `Warning: ${highPriorityCount} high priority deployment${highPriorityCount > 1 ? 's' : ''} pending. Allocate additional support to balance load thresholds.`;
+    } else if (activeTasks === 0) {
+      synthesis = 'No active task workloads queued. System standing by.';
+    }
 
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -177,7 +195,14 @@ const getPublicSchedule = async (req, res) => {
       return weekSchedule;
     });
 
-    res.json(schedule);
+    res.json({
+      metrics: {
+        activeTasks,
+        resolutionRate,
+        synthesis
+      },
+      schedule
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
