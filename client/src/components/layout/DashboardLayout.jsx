@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiHome, FiCheckSquare, FiUsers, FiLogOut, FiMessageSquare, FiX, FiSend, FiCompass, FiArchive } from 'react-icons/fi';
 import api from '../../utils/api';
+import ReactMarkdown from 'react-markdown';
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -156,7 +157,7 @@ const DashboardLayout = () => {
       {/* Floating AI Chat Assistant */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
         {isChatOpen && (
-          <div className="bg-slate-900/90 backdrop-blur-xl w-80 h-96 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] mb-4 border border-indigo-500/20 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="bg-slate-900/95 backdrop-blur-xl w-80 sm:w-96 md:w-[420px] h-[500px] rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] mb-4 border border-indigo-500/20 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
             <div className="bg-gradient-to-r from-indigo-950 to-slate-900 p-4 border-b border-slate-800 flex justify-between items-center shadow-md">
               <div className="flex items-center gap-2">
                 <span className="text-xl animate-pulse">🤖</span>
@@ -169,17 +170,23 @@ const DashboardLayout = () => {
               </button>
             </div>
             
-            <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-3 bg-slate-950/40">
+            <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-3.5 bg-slate-950/40">
               {chatMessages.map((msg, idx) => (
                 <div 
                   key={idx} 
-                  className={`max-w-[85%] rounded-xl p-3 text-xs leading-relaxed ${
+                  className={`max-w-[90%] rounded-xl p-3.5 text-xs leading-relaxed ${
                     msg.sender === 'user' 
                       ? 'bg-gradient-to-tr from-indigo-600 to-violet-600 text-white self-end shadow-lg shadow-indigo-600/10' 
-                      : 'bg-slate-900 border border-slate-800 text-slate-300 self-start shadow-md'
+                      : 'bg-slate-900 border border-slate-800 text-slate-200 self-start shadow-md'
                   }`}
                 >
-                  {msg.text}
+                  {msg.sender === 'user' ? (
+                    <div className="whitespace-pre-wrap">{msg.text}</div>
+                  ) : (
+                    <div className="prose prose-invert prose-indigo text-xs leading-relaxed max-w-none space-y-2">
+                      <ReactMarkdown>{msg.text}</ReactMarkdown>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
