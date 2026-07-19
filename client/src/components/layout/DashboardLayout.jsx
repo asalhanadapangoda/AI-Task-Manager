@@ -53,8 +53,8 @@ const DashboardLayout = () => {
       <aside className="w-64 bg-gradient-to-b from-slate-950 via-indigo-950/40 to-slate-950 border-r border-slate-900 flex flex-col hidden md:flex z-20 relative">
         {/* Logo Section */}
         <div className="h-20 flex items-center px-6 gap-3 border-b border-slate-900">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.5)]">
-            <FiCompass size={22} className="text-white animate-spin-slow" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.5)] overflow-hidden p-1.5">
+            <img src="/favicon.svg" alt="HashTask AI Logo" className="w-full h-full object-contain" />
           </div>
           <div>
             <span className="font-extrabold text-sm tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-indigo-400 block leading-none mb-1">

@@ -35,8 +35,8 @@ const Home = () => {
       <header className="sticky top-0 z-50 w-full px-6 py-4 bg-slate-950/70 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.4)]">
-              <FiCompass className="text-white" size={20} />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.4)] overflow-hidden p-1.5">
+              <img src="/favicon.svg" alt="HashTask AI Logo" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="font-extrabold text-base tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-indigo-400 m-0">
@@ -231,7 +231,7 @@ const Home = () => {
       {/* Footer */}
       <footer className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-900 flex flex-col md:flex-row items-center justify-between text-slate-500 text-xs gap-4 relative z-10">
         <div className="flex items-center gap-2">
-          <FiCompass size={16} />
+          <img src="/favicon.svg" alt="HashTask AI Logo" className="w-4 h-4 object-contain" />
           <span>© {new Date().getFullYear()} HashTask AI Operations. All rights reserved.</span>
         </div>
         <div className="flex items-center gap-6 font-mono">

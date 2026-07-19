@@ -29,8 +29,8 @@ const Login = () => {
       {/* Split Left Column (Visual Branding, hidden on mobile) */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-tr from-slate-950 via-slate-900 to-indigo-950 border-r border-slate-900 relative items-center justify-center p-12">
         <div className="max-w-md text-left space-y-6 z-10">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.4)] mb-8">
-            <FiCompass size={28} className="text-white" />
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.4)] mb-8 overflow-hidden p-2">
+            <img src="/favicon.svg" alt="HashTask AI Logo" className="w-full h-full object-contain" />
           </div>
           <h2 className="text-4xl font-extrabold tracking-tight text-white leading-tight">
             Configure Team Pipelines with <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-violet-400">Intelligent Guidance</span>
