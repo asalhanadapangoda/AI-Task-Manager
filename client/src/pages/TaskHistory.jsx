@@ -71,7 +71,7 @@ const TaskHistory = () => {
           ) : (
             <table className="w-full text-left text-slate-300">
               <thead>
-                <tr className="border-b border-slate-900 bg-slate-950/50 text-[10px] font-bold font-mono tracking-wider text-slate-500 uppercase">
+                <tr className="border-b border-slate-900 bg-slate-950/50 text-[12px] font-bold font-mono tracking-wider text-slate-500 uppercase">
                   <th scope="col" className="px-8 py-5">Operation Title</th>
                   <th scope="col" className="px-6 py-5">Description</th>
                   <th scope="col" className="px-6 py-5">Resolved Date</th>

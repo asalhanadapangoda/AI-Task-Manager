@@ -21,6 +21,15 @@ const getProductivitySummary = async (req, res) => {
     const delayedTasks = tasks.filter(t => t.status !== 'Completed' && new Date(t.deadline) < new Date()).length;
     const completionRate = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
+    const activeTasksList = tasks
+      .filter(t => t.status !== 'Completed')
+      .map(t => ({
+        title: t.title,
+        description: t.description || 'No detailed parameters supplied.',
+        deadline: t.deadline,
+        priority: t.priority
+      }));
+
     const stats = {
       totalTasks,
       completedTasks,
@@ -28,10 +37,23 @@ const getProductivitySummary = async (req, res) => {
       delayedTasks,
       completionRate,
       role: req.user.role,
+      activeTasksList
     };
 
     const summary = await generateProductivitySummary(stats);
-    res.json({ summary });
+
+    const quotes = [
+      { text: "Focus on being productive instead of busy.", author: "Tim Ferriss" },
+      { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+      { text: "Quality means doing it right when no one is looking.", author: "Henry Ford" },
+      { text: "Action is the foundational key to all success.", author: "Pablo Picasso" },
+      { text: "Your limit is only your imagination.", author: "Unknown" },
+      { text: "Push yourself, because no one else is going to do it for you.", author: "Unknown" },
+      { text: "Great things never come from comfort zones.", author: "Unknown" }
+    ];
+    const motivationQuote = quotes[Math.round((new Date().getDate() * 7) % quotes.length)];
+
+    res.json({ summary, motivationQuote });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

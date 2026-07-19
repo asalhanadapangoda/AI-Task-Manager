@@ -21,15 +21,21 @@ const generateProductivitySummary = async (stats) => {
       `;
     } else {
       prompt = `
-        You are an encouraging AI Coach and Mentor for a team member. Analyze their personal task statistics and output:
-        1. A friendly, high-energy summary of what tasks they have assigned.
-        2. A powerful, creative, and inspiring motivational message or quote to kickstart their day and keep them productive.
+        You are an encouraging AI Coach and Mentor for a team member. Analyze their personal task statistics and active task details.
         
         Stats: ${JSON.stringify(stats)}
         
-        Format your response with:
-        - Personal Task Outlook:
-        - Today's Motivation Boost:
+        Please output EXACTLY:
+        1. A friendly, high-energy Personal Task Outlook.
+        2. Today's Active Tasks list. For each active task, show:
+           - **Task Name** (Priority: [Priority])
+             *Description*: [Write a brief 1-sentence summary of the task]
+             *AI Recommended Steps for Completion*:
+             1. [Step 1]
+             2. [Step 2]
+             3. [Step 3]
+        
+        Do NOT output any motivation quotes, boosts, or slogans in this markdown summary. Do NOT mention Google, Gemini, or any LLM model name. Speak as a native, secure internal system assistant.
       `;
     }
 
@@ -48,18 +54,23 @@ const generateProductivitySummary = async (stats) => {
 - **Suggestion**: Consider review of node workloads and allocate support to pending dispatch items.
       `;
     } else {
-      const quotes = [
-        "\"Focus on being productive instead of busy.\" — Tim Ferriss",
-        "\"The secret of getting ahead is getting started.\" — Mark Twain",
-        "\"Quality means doing it right when no one is looking.\" — Henry Ford",
-        "\"Action is the foundational key to all success.\" — Pablo Picasso"
-      ];
-      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-      return `
-### AI Focus & Motivation Board (Fallback)
+      let tasksListMarkdown = '';
+      if (stats.activeTasksList && stats.activeTasksList.length > 0) {
+        tasksListMarkdown = '\n### Today\'s Active Operations:\n' + stats.activeTasksList.map((t, idx) => `
+**${idx + 1}. ${t.title}** (Priority: ${t.priority})
+* *Description*: ${t.description || 'No detailed parameters supplied.'}
+* *AI Recommended Steps for Completion*:
+  1. Review operation scope and confirm required resources are ready.
+  2. Execute execution parameters and perform validation test logs.
+  3. Submit completed node logs to Supervisor for final review and close task.
+`).join('\n');
+      } else {
+        tasksListMarkdown = '\n*All tasks completed! Node operational threshold clear.*';
+      }
 
-- **Personal Task Outlook**: You have **${stats.pendingTasks}** pending tasks remaining out of **${stats.totalTasks}** assigned. 
-- **Today's Motivation Boost**: ${randomQuote}
+      return `
+- **Personal Task Outlook**: You have **${stats.pendingTasks}** pending tasks remaining out of **${stats.totalTasks}** assigned.
+${tasksListMarkdown}
       `;
     }
   }

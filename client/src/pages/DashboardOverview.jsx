@@ -9,6 +9,7 @@ const DashboardOverview = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [aiSummary, setAiSummary] = useState('');
+  const [motivationQuote, setMotivationQuote] = useState({ text: 'Focus on being productive instead of busy.', author: 'Tim Ferriss' });
   const [loading, setLoading] = useState(true);
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -23,6 +24,9 @@ const DashboardOverview = () => {
         ]);
         setTasks(tasksRes.data);
         setAiSummary(summaryRes.data.summary);
+        if (summaryRes.data.motivationQuote) {
+          setMotivationQuote(summaryRes.data.motivationQuote);
+        }
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
         toast.error('Failed to load dashboard data');
@@ -214,25 +218,77 @@ const DashboardOverview = () => {
         </div>
       ) : (
         /* Member View: AI Motivation & Outlook Board */
-        <div className="bg-slate-900/60 backdrop-blur-xl border border-indigo-500/20 p-6 rounded-2xl relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-            <FiCpu size={120} className="text-indigo-400" />
-          </div>
-          <div className="relative z-10 space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
-              </span>
-              <h2 className="text-sm font-bold tracking-widest text-indigo-400 uppercase font-mono">
-                AI Focus & Motivation Board
-              </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Motivation & Outlook Panel */}
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-indigo-500/20 p-8 rounded-3xl relative overflow-hidden shadow-2xl flex flex-col justify-between space-y-6">
+            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+              <FiCpu size={120} className="text-indigo-400" />
             </div>
-            <div className="text-slate-300 text-sm leading-relaxed max-w-4xl prose prose-invert prose-indigo">
+            
+            <div className="space-y-6 relative z-10">
+              <div className="flex items-center gap-2">
+                <span className="flex h-2 w-2 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
+                </span>
+                <h2 className="text-xs font-bold tracking-widest text-indigo-400 uppercase font-mono">
+                  AI FOCUS BOARD
+                </h2>
+              </div>
+              
+              <div className="bg-slate-950/60 p-5 rounded-2xl border border-slate-900/80 font-mono text-xs text-slate-400 space-y-3 shadow-inner">
+                <div className="flex justify-between border-b border-slate-900 pb-2">
+                  <span className="text-slate-500">Assignee Node:</span>
+                  <span className="text-slate-200 font-semibold">{userInfo.name || 'Member'}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-900 pb-2">
+                  <span className="text-slate-500">Operational status:</span>
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20 text-[10px]">ACTIVE</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-900 pb-2">
+                  <span className="text-slate-500">Pending Load:</span>
+                  <span className="text-white font-bold">{pendingTasks} Task{pendingTasks !== 1 ? 's' : ''}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Resolution Rate:</span>
+                  <span className="text-indigo-400 font-bold">{totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100)}%</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-6 border-t border-slate-900 relative z-10">
+              <span className="text-[10px] font-bold font-mono text-slate-500 uppercase tracking-widest block">Motivation Boost</span>
+              <div className="bg-indigo-500/5 border border-indigo-500/10 p-4 rounded-xl">
+                <p className="text-xs text-slate-300 italic leading-relaxed font-sans">
+                  "{motivationQuote.text}"
+                </p>
+                <span className="text-[10px] font-mono text-indigo-400 block mt-2 text-right">— {motivationQuote.author}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* AI Completion Steps Panel */}
+          <div className="lg:col-span-2 bg-slate-900/40 backdrop-blur-xl border border-slate-900 p-8 rounded-3xl shadow-2xl space-y-6 relative">
+            <div className="flex justify-between items-center pb-4 border-b border-slate-950/60">
+              <div className="flex items-center gap-2">
+                <FiActivity className="text-emerald-400" />
+                <h2 className="text-xs font-bold tracking-widest text-slate-400 uppercase font-mono">
+                  Today's Execution Guidance (AI)
+                </h2>
+              </div>
+              <span className="text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full font-mono uppercase font-semibold">
+                Live Analysis
+              </span>
+            </div>
+
+            <div className="text-slate-300 text-sm leading-relaxed max-w-4xl prose prose-invert prose-indigo font-sans markdown-body-custom">
               {aiSummary ? (
                 <ReactMarkdown>{aiSummary}</ReactMarkdown>
               ) : (
-                <p className="text-slate-400">Assembling personal motivation metrics...</p>
+                <div className="flex flex-col items-center gap-2 py-12 text-slate-500 font-mono text-xs">
+                  <div className="w-8 h-8 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin mb-2"></div>
+                  Assembling personalized task guide...
+                </div>
               )}
             </div>
           </div>
