@@ -83,7 +83,7 @@ const DashboardLayout = () => {
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
             }`}
           >
-            <FiCheckSquare size={18} /> My Tasks
+            <FiCheckSquare size={18} /> {userRole.toLowerCase() === 'admin' ? 'Assign Task' : 'My Tasks'}
           </Link>
           <Link 
             to="/dashboard/history" 
@@ -135,7 +135,7 @@ const DashboardLayout = () => {
         <header className="h-20 bg-slate-950/40 backdrop-blur-md border-b border-slate-900 flex items-center justify-between px-8">
           <div className="flex flex-col">
             <div className="text-base font-bold text-white tracking-wide leading-tight">
-              {isActive('/dashboard') ? 'Global Operations Center' : isActive('/dashboard/tasks') ? 'Task Ledger' : isActive('/dashboard/history') ? 'History Ledger' : 'Team Registry'}
+              {isActive('/dashboard') ? 'Global Operations Center' : isActive('/dashboard/tasks') ? (userRole.toLowerCase() === 'admin' ? 'Assign Task' : 'Task Ledger') : isActive('/dashboard/history') ? 'History Ledger' : 'Team Registry'}
             </div>
             <p className="text-xs text-slate-500">Live network updates and performance summaries.</p>
           </div>
@@ -162,7 +162,6 @@ const DashboardLayout = () => {
                 <span className="text-xl animate-pulse">🤖</span>
                 <div>
                   <span className="font-semibold text-white text-sm block">Core AI Assistant</span>
-                  <span className="text-[10px] text-indigo-400 block font-mono">Gemini-Engine v1</span>
                 </div>
               </div>
               <button onClick={() => setIsChatOpen(false)} className="text-slate-400 hover:text-white transition">

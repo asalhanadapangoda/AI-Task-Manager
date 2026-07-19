@@ -23,10 +23,13 @@ const createTask = async (req, res) => {
       attachmentUrl,
     } = req.body;
 
+    // Enforce authorization check: members can only assign tasks to themselves
+    const finalAssignedTo = req.user.role === 'admin' ? assignedTo : [req.user._id];
+
     const task = await Task.create({
       title,
       description,
-      assignedTo,
+      assignedTo: finalAssignedTo,
       category,
       priority,
       startDate,

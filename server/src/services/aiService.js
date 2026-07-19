@@ -70,7 +70,7 @@ const handleChatAssistant = async (question, userTasks) => {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     
     const prompt = `
-      You are an AI Task Reminder Assistant for an employee. Answer their question based ONLY on the following tasks assigned to them. Be helpful, concise, and friendly.
+      You are an AI Task Reminder Assistant for an employee. Answer their question based ONLY on the following tasks assigned to them. Be helpful, concise, and friendly. Do NOT mention Google, Gemini, or any LLM model name. Speak as a native, secure internal system assistant.
 
       User's Question: "${question}"
       
@@ -83,10 +83,10 @@ const handleChatAssistant = async (question, userTasks) => {
     console.error('Error in AI Chat:', error);
     const pending = userTasks.filter(t => t.status !== 'Completed');
     if (pending.length === 0) {
-      return "I'm having trouble reaching the Gemini API, but I checked your record and you have no pending tasks. Great job!";
+      return "I'm having trouble reaching the assistant server, but I checked your record and you have no pending tasks. Great job!";
     }
     const titles = pending.slice(0, 3).map(t => `"${t.title}"`).join(', ');
-    return `I can't connect to the Gemini API right now (API Key invalid). However, looking at your offline records, you have ${pending.length} active tasks, including: ${titles}.`;
+    return `I'm having trouble reaching the assistant server right now. However, looking at your offline records, you have ${pending.length} active tasks, including: ${titles}.`;
   }
 };
 

@@ -61,7 +61,7 @@ const MyTasks = () => {
         category: data.category,
         estimatedDuration: Number(data.estimatedDuration),
         deadline: data.deadline,
-        assignedTo: isAdmin ? data.assignedTo : [userInfo._id], 
+        assignedTo: isAdmin ? [data.assignedTo] : [userInfo._id], 
       };
 
       await api.post('/tasks', payload);
@@ -92,6 +92,13 @@ const MyTasks = () => {
     }
   };
 
+  const handleOpenAddModal = () => {
+    if (isAdmin) {
+      fetchUsers();
+    }
+    setShowAddModal(true);
+  };
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -113,7 +120,7 @@ const MyTasks = () => {
           <p className="text-sm text-slate-400 mt-1">Manage and update task flows assigned across nodes.</p>
         </div>
         <button 
-          onClick={() => setShowAddModal(true)}
+          onClick={handleOpenAddModal}
           className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold text-xs uppercase tracking-wider transition shadow-lg shadow-indigo-950/30"
         >
           + Log Operation
@@ -252,13 +259,14 @@ const MyTasks = () => {
 
               {isAdmin && (
                 <div>
-                  <label className="block text-xs font-bold font-mono text-slate-400 uppercase mb-1">Assign to Node(s)</label>
+                  <label className="block text-xs font-bold font-mono text-slate-400 uppercase mb-1">Assign to Member</label>
                   <select
-                    multiple
-                    {...register('assignedTo', { required: 'Assign at least one member' })}
-                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 text-white rounded-xl focus:border-indigo-500 outline-none transition text-sm h-28"
+                    {...register('assignedTo', { required: 'Assign to a member' })}
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 text-white rounded-xl focus:border-indigo-500 outline-none transition text-sm cursor-pointer"
                   >
-                    {users.map(u => (
+                    <option value="">Select Member...</option>
+                    <option value={userInfo._id || userInfo.id}>Myself ({userInfo.name || 'Admin'})</option>
+                    {users.filter(u => u._id !== (userInfo._id || userInfo.id)).map(u => (
                       <option key={u._id} value={u._id}>{u.name} ({u.email})</option>
                     ))}
                   </select>
