@@ -196,7 +196,7 @@ const TeamManagement = () => {
               </div>
               <h2 className="text-xl font-extrabold text-white">Node Deployed Successfully!</h2>
               <p className="text-xs text-slate-400">
-                Onboarding email dispatch completed. However, since sandbox accounts restrict automated delivery, please manually copy these credentials for the user:
+                Node has been successfully deployed in the registry! Please manually copy these credentials to share with the team member:
               </p>
             </div>
             

@@ -1,6 +1,5 @@
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
-const sendEmail = require('../utils/sendEmail');
 
 // @desc    Auth user & get token
 // @route   POST /api/auth/login
@@ -52,21 +51,6 @@ const createUser = async (req, res) => {
     });
 
     if (user) {
-      const origin = req.headers.origin || 'http://localhost:5173';
-      const emailHtml = `
-        <h3>Welcome to Smart Task Management System</h3>
-        <p>Your account has been created.</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Password:</strong> ${password}</p>
-        <p><a href="${origin}/login">Login Here</a></p>
-      `;
-      
-      sendEmail({
-        email: user.email,
-        subject: 'Welcome to Smart Task Management System',
-        html: emailHtml,
-      });
-
       res.status(201).json({
         _id: user._id,
         name: user.name,

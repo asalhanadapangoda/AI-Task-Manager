@@ -1,6 +1,5 @@
 const Task = require('../models/Task');
 const User = require('../models/User');
-const sendEmail = require('../utils/sendEmail');
 const dayjs = require('dayjs');
 
 // @desc    Create new task
@@ -28,11 +27,11 @@ const createTask = async (req, res) => {
 
     const task = await Task.create({
       title,
-      description,
+      description: description || 'No detailed parameters supplied.',
       assignedTo: finalAssignedTo,
       category,
       priority,
-      startDate,
+      startDate: startDate || new Date(),
       deadline,
       estimatedDuration,
       isRecurring,
@@ -41,27 +40,6 @@ const createTask = async (req, res) => {
       attachmentUrl,
       createdBy: req.user._id,
     });
-
-    const assignedUsers = await User.find({ _id: { $in: assignedTo } });
-
-    if (assignedUsers && assignedUsers.length > 0) {
-      // Send Email Notification to all assigned users
-      const emailHtml = `
-        <h3>A new task has been assigned to you.</h3>
-        <p><strong>Task:</strong> ${title}</p>
-        <p><strong>Deadline:</strong> ${dayjs(deadline).format('DD MMMM YYYY')}</p>
-        <p><strong>Priority:</strong> ${priority}</p>
-        <p>Please check your dashboard.</p>
-      `;
-
-      assignedUsers.forEach(user => {
-        sendEmail({
-          email: user.email,
-          subject: 'New Task Assigned: ' + title,
-          html: emailHtml,
-        });
-      });
-    }
 
     res.status(201).json(task);
   } catch (error) {
@@ -162,10 +140,54 @@ const deleteTask = async (req, res) => {
   }
 };
 
+const getPublicSchedule = async (req, res) => {
+  try {
+    const users = await User.find({}, 'name');
+    const tasks = await Task.find({ status: { $ne: 'Completed' } }).populate('assignedTo', 'name');
+
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    const schedule = users.map(user => {
+      const userTasks = tasks.filter(task => 
+        task.assignedTo && task.assignedTo.some(assignedUser => assignedUser._id.toString() === user._id.toString())
+      );
+
+      const weekSchedule = {
+        _id: user._id,
+        name: user.name,
+        Monday: null,
+        Tuesday: null,
+        Wednesday: null,
+        Thursday: null,
+        Friday: null,
+        Saturday: null,
+        Sunday: null
+      };
+
+      userTasks.forEach(task => {
+        const day = daysOfWeek[new Date(task.deadline).getDay()];
+        if (!weekSchedule[day]) {
+          weekSchedule[day] = {
+            title: task.title,
+            priority: task.priority
+          };
+        }
+      });
+
+      return weekSchedule;
+    });
+
+    res.json(schedule);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createTask,
   getTasks,
   getTaskById,
   updateTask,
   deleteTask,
+  getPublicSchedule,
 };

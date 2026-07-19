@@ -1,8 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiCompass, FiActivity, FiGlobe, FiCpu, FiUsers, FiFileText, FiArrowRight, FiCheckCircle } from 'react-icons/fi';
+import api from '../utils/api';
 
 const Home = () => {
+  const [schedule, setSchedule] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      try {
+        const response = await api.get('/tasks/public-schedule');
+        setSchedule(response.data);
+      } catch (error) {
+        console.error('Failed to load active system node schedule:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSchedule();
+  }, []);
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans relative overflow-x-hidden">
       {/* Dynamic Background Glow Elements */}
@@ -130,7 +147,7 @@ const Home = () => {
             <table className="w-full text-left text-slate-300">
               <thead>
                 <tr className="border-b border-slate-900 bg-slate-950/50 text-[10px] font-bold font-mono tracking-wider text-slate-500 uppercase">
-                  <th scope="col" className="px-8 py-5">Node Node</th>
+                  <th scope="col" className="px-8 py-5">Node Name</th>
                   <th scope="col" className="px-6 py-5">Monday</th>
                   <th scope="col" className="px-6 py-5">Tuesday</th>
                   <th scope="col" className="px-6 py-5">Wednesday</th>
@@ -141,32 +158,60 @@ const Home = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-950/40 text-xs">
-                <tr className="hover:bg-slate-900/10 transition">
-                  <td className="px-8 py-5 font-bold text-slate-200 flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 font-extrabold text-xs">A</div>
-                    Asal
-                  </td>
-                  <td className="px-6 py-5"><span className="px-2.5 py-1 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-full font-mono uppercase text-[9px] font-semibold">Website UI</span></td>
-                  <td className="px-6 py-5"><span className="px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full font-mono uppercase text-[9px] font-semibold">API Fix</span></td>
-                  <td className="px-6 py-5"><span className="px-2.5 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-full font-mono uppercase text-[9px] font-semibold">Testing</span></td>
-                  <td className="px-6 py-5"><span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full font-mono uppercase text-[9px] font-semibold">SEO Optim</span></td>
-                  <td className="px-6 py-5"><span className="px-2.5 py-1 bg-slate-500/10 text-slate-400 border border-slate-500/20 rounded-full font-mono uppercase text-[9px] font-semibold">Briefing</span></td>
-                  <td className="px-6 py-5 text-slate-600 font-mono">-</td>
-                  <td className="px-6 py-5 text-slate-600 font-mono">-</td>
-                </tr>
-                <tr className="hover:bg-slate-900/10 transition">
-                  <td className="px-8 py-5 font-bold text-slate-200 flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-extrabold text-xs">K</div>
-                    Kavin
-                  </td>
-                  <td className="px-6 py-5"><span className="px-2.5 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full font-mono uppercase text-[9px] font-semibold">Database SQL</span></td>
-                  <td className="px-6 py-5"><span className="px-2.5 py-1 bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-full font-mono uppercase text-[9px] font-semibold">Report Doc</span></td>
-                  <td className="px-6 py-5"><span className="px-2.5 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-full font-mono uppercase text-[9px] font-semibold">Bug patch</span></td>
-                  <td className="px-6 py-5"><span className="px-2.5 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full font-mono uppercase text-[9px] font-semibold">AI research</span></td>
-                  <td className="px-6 py-5"><span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full font-mono uppercase text-[9px] font-semibold">Deploy</span></td>
-                  <td className="px-6 py-5 text-slate-600 font-mono">-</td>
-                  <td className="px-6 py-5 text-slate-600 font-mono">-</td>
-                </tr>
+                {loading ? (
+                  <tr>
+                    <td colSpan="8" className="text-center py-10 text-slate-500 font-mono">
+                      Querying operational grid databases...
+                    </td>
+                  </tr>
+                ) : schedule.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" className="text-center py-10 text-slate-500 font-mono">
+                      No active system nodes detected.
+                    </td>
+                  </tr>
+                ) : (
+                  schedule.map((node) => {
+                    const initial = node.name ? node.name.charAt(0).toUpperCase() : '?';
+                    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                    return (
+                      <tr key={node._id} className="hover:bg-slate-900/10 transition">
+                        <td className="px-8 py-5 font-bold text-slate-200 flex items-center gap-3">
+                          <div className="w-7 h-7 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 font-extrabold text-xs">
+                            {initial}
+                          </div>
+                          {node.name}
+                        </td>
+                        {days.map((day) => {
+                          const task = node[day];
+                          if (!task) {
+                            return (
+                              <td key={day} className="px-6 py-5 text-slate-600 font-mono">
+                                -
+                              </td>
+                            );
+                          }
+                          // Dynamically set category colors based on priority
+                          let badgeColor = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+                          if (task.priority === 'High') {
+                            badgeColor = "bg-rose-500/10 text-rose-400 border-rose-500/20";
+                          } else if (task.priority === 'Medium') {
+                            badgeColor = "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
+                          } else if (task.priority === 'Low') {
+                            badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                          }
+                          return (
+                            <td key={day} className="px-6 py-5">
+                              <span className={`px-2.5 py-1 border rounded-full font-mono uppercase text-[9px] font-semibold ${badgeColor}`}>
+                                {task.title}
+                              </span>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
