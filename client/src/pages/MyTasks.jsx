@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiClock, FiCheckCircle, FiTrash2, FiAlertCircle, FiSettings, FiActivity } from 'react-icons/fi';
+import { FiClock, FiCheckCircle, FiTrash2, FiAlertCircle, FiSettings, FiActivity, FiRepeat } from 'react-icons/fi';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
@@ -10,7 +10,9 @@ const MyTasks = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
+  
+  const selectedRecurrence = watch('recurrence', 'None');
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
   const isAdmin = userInfo.role === 'admin';
@@ -54,6 +56,7 @@ const MyTasks = () => {
 
   const onSubmitTask = async (data) => {
     try {
+      const isRecurring = data.recurrence && data.recurrence !== 'None';
       const payload = {
         title: data.title,
         description: data.description,
@@ -62,6 +65,9 @@ const MyTasks = () => {
         estimatedDuration: Number(data.estimatedDuration),
         deadline: data.deadline,
         assignedTo: isAdmin ? [data.assignedTo] : [userInfo._id], 
+        isRecurring,
+        recurrence: data.recurrence || 'None',
+        recurrenceValue: isRecurring ? (data.recurrenceValue || 'Monday') : '',
       };
 
       await api.post('/tasks', payload);
@@ -142,9 +148,16 @@ const MyTasks = () => {
               <div className="space-y-2">
                 <div className="flex justify-between items-start gap-4">
                   <h3 className="font-bold text-white text-base leading-snug">{task.title}</h3>
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase ${getPriorityBadge(task.priority)}`}>
-                    {task.priority}
-                  </span>
+                  <div className="flex flex-wrap items-center justify-end gap-1.5">
+                    {task.recurrence && task.recurrence !== 'None' && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 flex items-center gap-1" title="Recurring Operation">
+                        <FiRepeat className="w-3 h-3 text-indigo-400" /> {task.recurrence}{task.recurrenceValue ? `: ${task.recurrenceValue}` : ''}
+                      </span>
+                    )}
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase ${getPriorityBadge(task.priority)}`}>
+                      {task.priority}
+                    </span>
+                  </div>
                 </div>
                 <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">{task.description || 'No detailed parameters supplied for this operation.'}</p>
               </div>
@@ -255,6 +268,53 @@ const MyTasks = () => {
                     className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 text-white rounded-xl focus:border-indigo-500 outline-none transition text-sm"
                   />
                 </div>
+              </div>
+
+              {/* Repeat Options */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold font-mono text-slate-400 uppercase mb-1 flex items-center gap-1">
+                    <FiRepeat className="text-indigo-400" /> Repeat Schedule
+                  </label>
+                  <select
+                    {...register('recurrence')}
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 text-white rounded-xl focus:border-indigo-500 outline-none transition text-sm cursor-pointer"
+                  >
+                    <option value="None">Does Not Repeat</option>
+                    <option value="Weekly">Repeat Weekly</option>
+                    <option value="Daily">Repeat Daily</option>
+                    <option value="Monthly">Repeat Monthly</option>
+                  </select>
+                </div>
+                {selectedRecurrence === 'Weekly' ? (
+                  <div>
+                    <label className="block text-xs font-bold font-mono text-slate-400 uppercase mb-1">Repeat Day</label>
+                    <select
+                      {...register('recurrenceValue')}
+                      className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 text-white rounded-xl focus:border-indigo-500 outline-none transition text-sm cursor-pointer"
+                    >
+                      <option value="Monday">Every Monday</option>
+                      <option value="Tuesday">Every Tuesday</option>
+                      <option value="Wednesday">Every Wednesday</option>
+                      <option value="Thursday">Every Thursday</option>
+                      <option value="Friday">Every Friday</option>
+                      <option value="Saturday">Every Saturday</option>
+                      <option value="Sunday">Every Sunday</option>
+                    </select>
+                  </div>
+                ) : selectedRecurrence === 'Monthly' ? (
+                  <div>
+                    <label className="block text-xs font-bold font-mono text-slate-400 uppercase mb-1">Day of Month</label>
+                    <select
+                      {...register('recurrenceValue')}
+                      className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 text-white rounded-xl focus:border-indigo-500 outline-none transition text-sm cursor-pointer"
+                    >
+                      <option value="1">1st of Month</option>
+                      <option value="15">15th of Month</option>
+                      <option value="30">30th of Month</option>
+                    </select>
+                  </div>
+                ) : null}
               </div>
 
               {isAdmin && (

@@ -25,6 +25,8 @@ const createTask = async (req, res) => {
     // Enforce authorization check: members can only assign tasks to themselves
     const finalAssignedTo = req.user.role === 'admin' ? assignedTo : [req.user._id];
 
+    const finalIsRecurring = isRecurring || (recurrence && recurrence !== 'None');
+
     const task = await Task.create({
       title,
       description: description || 'No detailed parameters supplied.',
@@ -34,9 +36,9 @@ const createTask = async (req, res) => {
       startDate: startDate || new Date(),
       deadline,
       estimatedDuration,
-      isRecurring,
-      recurrence,
-      recurrenceValue,
+      isRecurring: finalIsRecurring,
+      recurrence: recurrence || 'None',
+      recurrenceValue: recurrenceValue || '',
       attachmentUrl,
       createdBy: req.user._id,
     });
