@@ -175,22 +175,23 @@ const getPublicSchedule = async (req, res) => {
       const weekSchedule = {
         _id: user._id,
         name: user.name,
-        Monday: null,
-        Tuesday: null,
-        Wednesday: null,
-        Thursday: null,
-        Friday: null,
-        Saturday: null,
-        Sunday: null
+        Monday: [],
+        Tuesday: [],
+        Wednesday: [],
+        Thursday: [],
+        Friday: [],
+        Saturday: [],
+        Sunday: []
       };
 
       userTasks.forEach(task => {
         const day = daysOfWeek[new Date(task.deadline).getDay()];
-        if (!weekSchedule[day]) {
-          weekSchedule[day] = {
+        if (weekSchedule[day]) {
+          weekSchedule[day].push({
+            _id: task._id,
             title: task.title,
             priority: task.priority
-          };
+          });
         }
       });
 

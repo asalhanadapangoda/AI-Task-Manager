@@ -193,28 +193,35 @@ const Home = () => {
                           {node.name}
                         </td>
                         {days.map((day) => {
-                          const task = node[day];
-                          if (!task) {
+                          const tasks = node[day];
+                          if (!tasks || (Array.isArray(tasks) && tasks.length === 0)) {
                             return (
                               <td key={day} className="px-6 py-5 text-slate-600 font-mono">
                                 -
                               </td>
                             );
                           }
-                          // Dynamically set category colors based on priority
-                          let badgeColor = "bg-blue-500/10 text-blue-400 border-blue-500/20";
-                          if (task.priority === 'High') {
-                            badgeColor = "bg-rose-500/10 text-rose-400 border-rose-500/20";
-                          } else if (task.priority === 'Medium') {
-                            badgeColor = "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
-                          } else if (task.priority === 'Low') {
-                            badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-                          }
+                          const taskList = Array.isArray(tasks) ? tasks : [tasks];
+
                           return (
                             <td key={day} className="px-6 py-5">
-                              <span className={`px-2.5 py-1 border rounded-full font-mono uppercase text-[9px] font-semibold ${badgeColor}`}>
-                                {task.title}
-                              </span>
+                              <div className="flex flex-col gap-1.5 items-start">
+                                {taskList.map((task, idx) => {
+                                  let badgeColor = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+                                  if (task.priority === 'High') {
+                                    badgeColor = "bg-rose-500/10 text-rose-400 border-rose-500/20";
+                                  } else if (task.priority === 'Medium') {
+                                    badgeColor = "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
+                                  } else if (task.priority === 'Low') {
+                                    badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                                  }
+                                  return (
+                                    <span key={task._id || idx} className={`px-2.5 py-1 border rounded-full font-mono uppercase text-[9px] font-semibold ${badgeColor}`}>
+                                      {task.title}
+                                    </span>
+                                  );
+                                })}
+                              </div>
                             </td>
                           );
                         })}
